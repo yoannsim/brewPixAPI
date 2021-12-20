@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const normalizePort = require('normalize-port');
 const app = express();
 const path = require('path');
 const request = require('request');
+const { json } = require('express/lib/response');
 
 app.use(cors())
 
@@ -13,10 +13,19 @@ app.set('port', port);
 app.set('env',"production");
 
 app.get('/stock', (req, res) => {
-  
-	request('https://docs.google.com/spreadsheets/d/e/2PACX-1vSm3f88Eqr8_9JLPcV3zM4IsNjCWFQLw5aMxJO1nbVUDqI2QNRqt-F1N_T7NdHO-5yixFd98_6olVUp/pub?output=csv',function (err, response, body) {
-	res.send(body);
-  });
+	var resp = "{";
+	request('https://docs.google.com/spreadsheets/d/e/2PACX-1vSm3f88Eqr8_9JLPcV3zM4IsNjCWFQLw5aMxJO1nbVUDqI2QNRqt-F1N_T7NdHO-5yixFd98_6olVUp/pub?output=csv', function (err, response, body) {
+		col = body.split('\r\n');
+		L1  = col[0].split(',');
+		L2  = col[1].split(',');
+		console.log(col);
+		for (let i = 0; i < L1.length; i++) {
+
+			resp += "\""+L1[i] +"\":\""+ L2[i]+"\",";
+		} 
+		resp = resp.slice(0,-1) + "}";
+		res.send(JSON.parse(resp));
+  	});
   
 });
 
