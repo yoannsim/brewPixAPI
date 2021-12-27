@@ -5,14 +5,18 @@ const path = require('path');
 const request = require('request');
 const { json } = require('express/lib/response');
 
-app.use(cors())
+
+var corsOptions = {
+	origin: 'https://brewpix.ch',
+	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  }
 
 var port = process.env.PORT || 8080 ;
 console.log('running the app on port '+ port);
 app.set('port', port);
 app.set('env',"production");
 
-app.get('/stock', (req, res) => {
+app.get('/stock',cors(corsOptions), (req, res) => {
 	var resp = "{";
 	request('https://docs.google.com/spreadsheets/d/e/2PACX-1vSm3f88Eqr8_9JLPcV3zM4IsNjCWFQLw5aMxJO1nbVUDqI2QNRqt-F1N_T7NdHO-5yixFd98_6olVUp/pub?output=csv', function (err, response, body) {
 		col = body.split('\r\n');
