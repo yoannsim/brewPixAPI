@@ -12,6 +12,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.2",
+    "mongodb": "^4.2.2",
     "normalize-port": "^1.0.0",
     "path": "^0.12.7",
     "request": "^2.88.2"

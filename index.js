@@ -3,14 +3,10 @@ const cors = require('cors');
 const app = express();
 const path = require('path');
 const request = require('request');
-const { json } = require('express/lib/response');
-const { time } = require('console');
+const { MongoClient } = require('mongodb');
 
-var Visitor = {
-	nbVisitor : 0,
-	name : [],
-	lasteRequest : ""
-};
+const uri = "mongodb+srv://yoyo:4EsWdH3wMfsSJ28@brewpi.5agwx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 var corsOptions = {
 	origin: 'https://brewpix.ch',
@@ -34,24 +30,50 @@ app.get('/stock',cors(corsOptions), (req, res) => {
 			resp += "\""+L1[i] +"\":\""+ L2[i]+"\",";
 		} 
 		resp = resp.slice(0,-1) + "}";
+	
 		res.send(JSON.parse(resp));
-		Visitor.nbVisitor++;
   	});
+
+	var ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
+
+	var Visitor = {
+		ip : ip, 
+		navigator : req.headers['user-agent']
+	};
+	
+	client.connect(function(err, db) {
+		if (err) throw err;
+		dbo = db.db("brewAPI");
+		dbo.collection("visitor").insertOne(Visitor, 
+		function(err, result) {
+			if (err) throw err;
+			console.log(result);
+			db.close();
+		});
+	});
   
 });
 
 app.get('/price',cors(corsOptions), (req, res) => {
 	var price = "4";
+
 	res.send(JSON.parse(JSON.stringify(price)))
   
 });
 app.get('/visitor',cors(corsOptions), (req, res) => {
-	  res.send(JSON.parse(JSON.stringify(Visitor)));
-  
+
+	client.connect(function(err, db) {
+		if (err) throw err;
+		dbo = db.db("brewAPI");
+		dbo.collection("visitor").count({}, function(error, numOfDocs) {
+			console.log('nb visitor = '+numOfDocs+' ');
+			res.send(JSON.stringify(numOfDocs));
+		});
+	});
 });
 
 app.get('/', (req, res) => {
-	Visitor.nbVisitor++;
+
 	res.sendFile(path.join(__dirname, '/API.html'));
  });
   
