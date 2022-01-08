@@ -1,11 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const bodyParser = require('body-parser');
 const path = require('path');
 const request = require('request');
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb+srv://yoyo:4EsWdH3wMfsSJ28@brewpi.5agwx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = "mongodb+srv://test:nXWK2StVLa34NBQ@brewpi.5agwx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 var corsOptions = {
@@ -15,8 +16,12 @@ var corsOptions = {
 
 var port = process.env.PORT || 8080 ;
 console.log('running the app on port '+ port);
+
+app.use(bodyParser.urlencoded({ extended: true }));
 app.set('port', port);
 app.set('env',"production");
+
+
 
 app.get('/stock',cors(corsOptions), (req, res) => {
 	var resp = "{";
@@ -44,6 +49,10 @@ app.get('/stock',cors(corsOptions), (req, res) => {
 	client.connect(function(err, db) {
 		if (err) throw err;
 		dbo = db.db("brewAPI");
+		const timeElapsed = Date.now();
+		const today = new Date(timeElapsed);
+		Visitor.timestamp = today.toTimeString().substring(0, 9) + today.toLocaleDateString();
+		console.log(Visitor);
 		dbo.collection("visitor").insertOne(Visitor, 
 		function(err, result) {
 			if (err) throw err;
@@ -69,6 +78,25 @@ app.get('/visitor',cors(corsOptions), (req, res) => {
 			console.log('nb visitor = '+numOfDocs+' ');
 			res.send(JSON.stringify(numOfDocs));
 		});
+	});
+});
+
+app.post('/cmd',cors(corsOptions), (req, res) =>{
+	client.connect(function(err, db) {
+		if (err) throw err;
+		dbo = db.db("brewAPI");
+		var commande = JSON.parse(Object.keys(req.body)[0]);
+		const timeElapsed = Date.now();
+		const today = new Date(timeElapsed);
+		commande.timestamp = today.toTimeString().substring(0, 9) + today.toLocaleDateString();
+		console.log(commande);
+		dbo.collection("contact").insertOne(commande, 
+		function(err, result) {
+			if (err) throw err;
+			console.log(result);
+			res.sendStatus(200);
+			db.close();
+		});	
 	});
 });
 
