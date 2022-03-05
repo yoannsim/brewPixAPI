@@ -10,7 +10,7 @@ const uri = "mongodb+srv://test:nXWK2StVLa34NBQ@brewpi.5agwx.mongodb.net/myFirst
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 var corsOptions = {
-	origin: 'https://brewpix-static-h3vzo.ondigitalocean.app/',
+	origin: 'https://brewpix-static-h3vzo.ondigitalocean.app',
 	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   }
 
