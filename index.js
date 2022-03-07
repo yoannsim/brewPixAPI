@@ -9,10 +9,17 @@ const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://test:nXWK2StVLa34NBQ@brewpi.5agwx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
+var whitelist = ['https://brewpix-static-h3vzo.ondigitalocean.app', 'https://brewpix.ch','https://www.brewpix.ch']
 var corsOptions = {
-	origin: 'https://brewpix-static-h3vzo.ondigitalocean.app',
-	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
   }
+}
+
 
 var port = process.env.PORT || 8080 ;
 console.log('running the app on port '+ port);
